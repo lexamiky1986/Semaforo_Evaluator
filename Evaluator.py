@@ -23,7 +23,7 @@ elif menu == "Realizar Encuesta":
     q4 = st.slider("Claridad de la comunicación", 1, 5, 3)
 
     if st.button("Enviar"):
-        nuevo = pd.DataFrame([[q1, q2, q3, q4]], columns=X = df[["Q1 - Courtesy", "Q2 - Technical", "Q3 - Timeliness", "Q4 - Quality"]])
+        nuevo = pd.DataFrame([[q1, q2, q3, q4]], columns=X = df(["Q1 - Courtesy", "Q2 - Technical", "Q3 - Timeliness", "Q4 - Quality"])
         df = pd.read_csv("dataset_satisfaccion.csv")
         df = pd.concat([df, nuevo], ignore_index=True)
         df.to_csv("dataset_satisfaccion.csv", index=False)
