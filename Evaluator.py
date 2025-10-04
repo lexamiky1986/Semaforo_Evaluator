@@ -1,50 +1,40 @@
 import streamlit as st
+import pandas as pd
+import joblib
+from sklearn.neural_network import MLPClassifier
+import matplotlib.pyplot as plt
 
-# ---- Configuración de página ----
-st.set_page_config(page_title="Evaluador de Viabilidad", page_icon="🚦", layout="centered")
+st.title("Lean Six Sigma Satisfaction Analyzer 🧠📊")
 
-# ---- Título ----
-st.title("🚦 Evaluador de Viabilidad de Proyectos")
-st.write("Esta aplicación clasifica un proyecto como **Viable**, **Por Mejorar** o **No Viable**, según criterios simples de costo, duración, recursos y riesgo.")
+menu = st.sidebar.selectbox("Selecciona una opción:", 
+                            ["Dashboard", "Realizar Encuesta", "Reentrenar Modelo"])
 
-# ---- Entradas ----
-st.header("📋 Ingrese los datos del proyecto")
+if menu == "Dashboard":
+    st.header("📈 Análisis de Satisfacción")
+    df = pd.read_csv("dataset_satisfaccion.csv")
+    st.dataframe(df.head())
+    st.bar_chart(df["Q5 - Overall"])
+    
+elif menu == "Realizar Encuesta":
+    st.header("📝 Nueva Encuesta de Satisfacción")
+    q1 = st.slider("Tiempo de respuesta", 1, 5, 3)
+    q2 = st.slider("Calidad del servicio", 1, 5, 3)
+    q3 = st.slider("Disponibilidad del técnico", 1, 5, 3)
+    q4 = st.slider("Claridad de la comunicación", 1, 5, 3)
 
-costo = st.number_input("Costo estimado (USD):", min_value=0.0, step=100.0)
-duracion = st.number_input("Duración estimada (meses):", min_value=0.0, step=1.0)
-complejidad = st.selectbox("Complejidad del proyecto:", ["Baja", "Media", "Alta"])
-recursos = st.slider("Disponibilidad de recursos (0 = muy pocos, 10 = muchos):", 0, 10, 5)
-riesgo = st.slider("Nivel de riesgo (0 = bajo, 10 = alto):", 0, 10, 5)
+    if st.button("Enviar"):
+        nuevo = pd.DataFrame([[q1, q2, q3, q4]], columns=["Q1", "Q2", "Q3", "Q4"])
+        df = pd.read_csv("dataset_satisfaccion.csv")
+        df = pd.concat([df, nuevo], ignore_index=True)
+        df.to_csv("dataset_satisfaccion.csv", index=False)
+        st.success("Encuesta enviada correctamente ✅")
 
-# ---- Evaluación ----
-st.header("🔍 Evaluación")
-
-if st.button("Evaluar Proyecto"):
-    score = 0
-
-    # Criterios simples
-    if costo < 10000: score += 2
-    elif costo < 50000: score += 1
-
-    if duracion < 6: score += 2
-    elif duracion < 12: score += 1
-
-    if complejidad == "Baja": score += 2
-    elif complejidad == "Media": score += 1
-
-    score += recursos / 5
-    score -= riesgo / 3
-
-    # Clasificación final
-    if score >= 6:
-        resultado = "🟢 Proyecto Viable"
-        color = "green"
-    elif 3 <= score < 6:
-        resultado = "🟡 Proyecto por Mejorar"
-        color = "orange"
-    else:
-        resultado = "🔴 Proyecto No Viable"
-        color = "red"
-
-    st.markdown(f"## Resultado: <span style='color:{color}'>{resultado}</span>", unsafe_allow_html=True)
-    st.write("**Puntaje total:**", round(score, 2))
+elif menu == "Reentrenar Modelo":
+    st.header("⚙️ Reentrenar modelo de IA")
+    df = pd.read_csv("dataset_satisfaccion.csv")
+    X = df[["Q1", "Q2", "Q3", "Q4"]]
+    y = df["Etiqueta"]
+    model = MLPClassifier(hidden_layer_sizes=(8, 8), max_iter=1000)
+    model.fit(X, y)
+    joblib.dump(model, "modelo_mlp.pkl")
+    st.success("Modelo reentrenado exitosamente 🧠💾")
