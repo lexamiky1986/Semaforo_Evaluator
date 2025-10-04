@@ -51,7 +51,6 @@ elif menu == "Realizar Encuesta":
         st.success("✅ Encuesta enviada correctamente y guardada en el dataset.")
 
 elif menu == "Reentrenar Modelo":
-    elif menu == "Reentrenar Modelo":
     st.header("⚙️ Reentrenar modelo de IA")
 
     try:
