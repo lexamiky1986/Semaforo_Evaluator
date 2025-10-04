@@ -15,42 +15,75 @@ if menu == "Dashboard":
     st.dataframe(df.head())
     st.bar_chart(df["Q5 - Overall"])
     
+
 elif menu == "Realizar Encuesta":
     st.header("📝 Nueva Encuesta de Satisfacción")
 
-    # 1️⃣ Ingreso de valores del usuario
+    # --- 1️⃣ Selección de metadatos ---
+    st.subheader("Datos del solicitante")
+
+    dept_options = [
+        "PMO", "Information Security", "Technical Account Management", "Business Development",
+        "Client Operations", "Business Continuity", "Networking", "Change Management",
+        "Facilities", "Goods Strategy", "Human Resources", "Privacy", "Legal",
+        "Systems", "Desktop Support", "User Admin", "Software Development"
+    ]
+
+    work_item_options = [
+        "RFPs & Questionnaires",
+        "Policy Controls",
+        "Process Automation"
+    ]
+
+    departamento = st.selectbox("Área solicitante (Requesting Dept):", dept_options)
+    tipo_servicio = st.selectbox("Tipo de servicio (Work Item Type):", work_item_options)
+
+    # --- 2️⃣ Encuesta de satisfacción ---
+    st.subheader("Calificación del servicio recibido (1 = Muy bajo, 5 = Excelente)")
     q1 = st.slider("Tiempo de respuesta", 1, 5, 3)
     q2 = st.slider("Calidad del servicio", 1, 5, 3)
     q3 = st.slider("Disponibilidad del técnico", 1, 5, 3)
     q4 = st.slider("Claridad de la comunicación", 1, 5, 3)
 
-    # 2️⃣ Al presionar Enviar
-    if st.button("Enviar"):
+    # --- 3️⃣ Cálculo automático del promedio (Q5 - Overall) ---
+    q5_overall = round((q1 + q2 + q3 + q4) / 4, 2)
+    st.info(f"Puntuación global calculada automáticamente: **{q5_overall}**")
+
+    # --- 4️⃣ Guardar encuesta ---
+    if st.button("Enviar encuesta"):
         import os
 
-        # Asegurarse de que el archivo base exista
         csv_path = "dataset_satisfaccion.csv"
+        # Si el dataset no existe, se crea uno nuevo con todas las columnas
         if not os.path.exists(csv_path):
             st.warning("No se encontró el dataset. Se creará uno nuevo.")
-            df = pd.DataFrame(columns=["Q1 - Courtesy", "Q2 - Technical", "Q3 - Timeliness", "Q4 - Quality", "Q5 - Overall"])
+            df = pd.DataFrame(columns=[
+                "Requesting Dept", "Work Item Type",
+                "Q1 - Courtesy", "Q2 - Technical", "Q3 - Timeliness", "Q4 - Quality",
+                "Q5 - Overall"
+            ])
         else:
             df = pd.read_csv(csv_path)
 
-        # 3️⃣ Crear el nuevo registro
-        nuevo = pd.DataFrame(
-            [[q1, q2, q3, q4, None]],
-            columns=["Q1 - Courtesy", "Q2 - Technical", "Q3 - Timeliness", "Q4 - Quality", "Q5 - Overall"]
-        )
+        # Crear la nueva fila con la información ingresada
+        nueva_fila = pd.DataFrame([{
+            "Requesting Dept": departamento,
+            "Work Item Type": tipo_servicio,
+            "Q1 - Courtesy": q1,
+            "Q2 - Technical": q2,
+            "Q3 - Timeliness": q3,
+            "Q4 - Quality": q4,
+            "Q5 - Overall": q5_overall
+        }])
 
-        # 4️⃣ Unir al dataset existente
-        df = pd.concat([df, nuevo], ignore_index=True)
-
-        # 5️⃣ Guardar los cambios
+        # Agregar la nueva encuesta al dataset
+        df = pd.concat([df, nueva_fila], ignore_index=True)
         df.to_csv(csv_path, index=False)
 
         st.success("✅ Encuesta enviada correctamente y guardada en el dataset.")
-
-elif menu == "Reentrenar Modelo":
+        st.balloons()
+    
+    elif menu == "Reentrenar Modelo":
     st.header("⚙️ Reentrenar modelo de IA")
 
     try:
