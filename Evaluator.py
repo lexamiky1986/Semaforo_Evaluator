@@ -83,52 +83,52 @@ elif menu == "Realizar Encuesta":
         st.success("✅ Encuesta enviada correctamente y guardada en el dataset.")
         st.balloons()
     
-    elif menu == "Reentrenar Modelo":
-    st.header("⚙️ Reentrenar modelo de IA")
+elif menu == "Reentrenar Modelo":
+  st.header("⚙️ Reentrenar modelo de IA")
 
-    try:
-        df = pd.read_csv("dataset_satisfaccion.csv")
+  try:
+      df = pd.read_csv("dataset_satisfaccion.csv")
 
-        # Crear columna objetivo si no existe
-        if "Etiqueta" not in df.columns:
-            def clasificar_viabilidad(valor):
-                if valor >= 4:
-                    return "Viable"
-                elif valor >= 3:
-                    return "Por mejorar"
-                else:
-                    return "No viable"
-            df["Etiqueta"] = df["Q5 - Overall"].apply(clasificar_viabilidad)
+      # Crear columna objetivo si no existe
+      if "Etiqueta" not in df.columns:
+          def clasificar_viabilidad(valor):
+              if valor >= 4:
+                  return "Viable"
+              elif valor >= 3:
+                  return "Por mejorar"
+              else:
+                  return "No viable"
+          df["Etiqueta"] = df["Q5 - Overall"].apply(clasificar_viabilidad)
 
-        # Asegurar columnas numéricas
-        columnas = ["Q1 - Courtesy", "Q2 - Technical", "Q3 - Timeliness", "Q4 - Quality"]
-        for c in columnas:
-            df[c] = pd.to_numeric(df[c], errors="coerce")
+      # Asegurar columnas numéricas
+      columnas = ["Q1 - Courtesy", "Q2 - Technical", "Q3 - Timeliness", "Q4 - Quality"]
+      for c in columnas:
+          df[c] = pd.to_numeric(df[c], errors="coerce")
 
-        df = df.dropna(subset=columnas)
+      df = df.dropna(subset=columnas)
 
-        # Definir variables X e y
-        X = df[columnas]
-        y = df["Etiqueta"]
+      # Definir variables X e y
+      X = df[columnas]
+      y = df["Etiqueta"]
 
-        from sklearn.model_selection import train_test_split
-        from sklearn.neural_network import MLPClassifier
-        from sklearn.preprocessing import LabelEncoder
-        from sklearn.metrics import accuracy_score
+      from sklearn.model_selection import train_test_split
+      from sklearn.neural_network import MLPClassifier
+      from sklearn.preprocessing import LabelEncoder
+      from sklearn.metrics import accuracy_score
 
-        le = LabelEncoder()
-        y_encoded = le.fit_transform(y)
+      le = LabelEncoder()
+      y_encoded = le.fit_transform(y)
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y_encoded, test_size=0.2, random_state=42)
+      X_train, X_test, y_train, y_test = train_test_split(X, y_encoded, test_size=0.2, random_state=42)
 
-        modelo = MLPClassifier(hidden_layer_sizes=(8, 8), max_iter=1000, random_state=42)
-        modelo.fit(X_train, y_train)
+      modelo = MLPClassifier(hidden_layer_sizes=(8, 8), max_iter=1000, random_state=42)
+      modelo.fit(X_train, y_train)
 
-        y_pred = modelo.predict(X_test)
-        acc = accuracy_score(y_test, y_pred)
+      y_pred = modelo.predict(X_test)
+      acc = accuracy_score(y_test, y_pred)
 
-        st.success(f"✅ Modelo reentrenado correctamente")
-        st.info(f"Precisión del modelo: {acc:.2f}")
+      st.success(f"✅ Modelo reentrenado correctamente")
+      st.info(f"Precisión del modelo: {acc:.2f}")
 
-    except Exception as e:
-        st.error(f"Error al reentrenar el modelo: {e}")
+  except Exception as e:
+      st.error(f"Error al reentrenar el modelo: {e}")
