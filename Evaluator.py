@@ -17,17 +17,38 @@ if menu == "Dashboard":
     
 elif menu == "Realizar Encuesta":
     st.header("📝 Nueva Encuesta de Satisfacción")
+
+    # 1️⃣ Ingreso de valores del usuario
     q1 = st.slider("Tiempo de respuesta", 1, 5, 3)
     q2 = st.slider("Calidad del servicio", 1, 5, 3)
     q3 = st.slider("Disponibilidad del técnico", 1, 5, 3)
     q4 = st.slider("Claridad de la comunicación", 1, 5, 3)
 
+    # 2️⃣ Al presionar Enviar
     if st.button("Enviar"):
-        nuevo = pd.DataFrame([[q1, q2, q3, q4]], columns=X = df(["Q1 - Courtesy", "Q2 - Technical", "Q3 - Timeliness", "Q4 - Quality"])
-        df = pd.read_csv("dataset_satisfaccion.csv")
+        import os
+
+        # Asegurarse de que el archivo base exista
+        csv_path = "dataset_satisfaccion.csv"
+        if not os.path.exists(csv_path):
+            st.warning("No se encontró el dataset. Se creará uno nuevo.")
+            df = pd.DataFrame(columns=["Q1 - Courtesy", "Q2 - Technical", "Q3 - Timeliness", "Q4 - Quality", "Q5 - Overall"])
+        else:
+            df = pd.read_csv(csv_path)
+
+        # 3️⃣ Crear el nuevo registro
+        nuevo = pd.DataFrame(
+            [[q1, q2, q3, q4, None]],
+            columns=["Q1 - Courtesy", "Q2 - Technical", "Q3 - Timeliness", "Q4 - Quality", "Q5 - Overall"]
+        )
+
+        # 4️⃣ Unir al dataset existente
         df = pd.concat([df, nuevo], ignore_index=True)
-        df.to_csv("dataset_satisfaccion.csv", index=False)
-        st.success("Encuesta enviada correctamente ✅")
+
+        # 5️⃣ Guardar los cambios
+        df.to_csv(csv_path, index=False)
+
+        st.success("✅ Encuesta enviada correctamente y guardada en el dataset.")
 
 elif menu == "Reentrenar Modelo":
     elif menu == "Reentrenar Modelo":
